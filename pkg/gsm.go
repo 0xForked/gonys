@@ -78,7 +78,6 @@ func (modem *GSM) Connect() (err error) {
 	}
 
 	modem.Port, err = serial.OpenPort(config)
-
 	if err == nil {
 		modem.init()
 	}
@@ -130,14 +129,13 @@ func (modem *GSM) Expect(possibilities []string) (string, error) {
 	buf := make([]byte, readMax)
 
 	for i := 0; i < readMax; i++ {
-		n, err := modem.Port.Read(buf)
-
+		conn, err := modem.Port.Read(buf)
 		if err != nil {
 			panic(err)
 		}
 
-		if n > 0 {
-			status = string(buf[:n])
+		if conn > 0 {
+			status = string(buf[:conn])
 
 			for _, possibility := range possibilities {
 				if strings.HasSuffix(status, possibility) {
@@ -171,8 +169,8 @@ func (modem *GSM) Send(command string)  {
 	log.Println("---Send:", utils.Transpose(command))
 
 	_ = modem.Port.Flush()
-	_, err := modem.Port.Write([]byte(command))
 
+	_, err := modem.Port.Write([]byte(command))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -194,7 +192,6 @@ func (modem *GSM) Read(number int) string {
 
 	for i := 0; i < number; i++ {
 		conn, err := modem.Port.Read(buf)
-
 		if err != nil {
 			panic(err)
 		}
@@ -223,7 +220,6 @@ func (modem *GSM) WriteCommand(command string, waitCallback bool) string  {
 
 	if waitCallback {
 		exc, err := modem.Expect([]string{"OK\r\n", "ERROR\r\n"})
-
 		if err != nil {
 			panic(err)
 		}
